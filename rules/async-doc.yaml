@@ -1,0 +1,51 @@
+# Async / document deck — merged when --preset async-doc
+# For decks emailed or read without a live speaker (notes + denser text OK).
+
+version: 3
+presets:
+  async-doc:
+    extends: [reading]
+    overrides:
+      max_chars_per_slide: 280
+      min_font_pt: 14
+
+rules:
+  - id: speaker-notes
+    severity: warning
+    category: design
+    description: "Content slides must include speaker notes for async readers."
+    description_zh: "内容页必须有演讲者备注，供异步读者阅读。"
+    check: speaker_notes
+    params: { min_body_chars: 40, min_notes_chars: 20, skip_first_slide: true }
+
+  - id: notes-for-charts
+    severity: warning
+    category: chart
+    description: "Explain charts in notes when the deck is read alone."
+    description_zh: "独自阅读时，在备注中解释图表。"
+    check: notes_for_charts
+    params: { min_notes_chars: 30 }
+
+  - id: unique-titles
+    severity: warning
+    category: a11y
+    description: "Unique titles help skimming async decks."
+    description_zh: "唯一标题便于扫读异步稿。"
+    check: unique_titles
+    params: { require_title: true }
+
+  - id: max-text
+    severity: warning
+    category: typography
+    description: "Async allows denser text but still caps wall-of-text."
+    description_zh: "异步允许更密文字，但仍限制文字墙。"
+    check: max_chars_per_slide
+    params: { max: 280 }
+
+  - id: empty-slide
+    severity: warning
+    category: design
+    description: "Blank slides confuse async readers."
+    description_zh: "空白页会困扰异步读者。"
+    check: empty_slide
+    params: { min_chars: 1, allow_picture_only: true }

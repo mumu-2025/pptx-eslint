@@ -25,7 +25,7 @@ python -m venv .venv
 source .venv/bin/activate          # Windows: .\.venv\Scripts\Activate.ps1
 pip install -U pip
 pip install -e ".[dev]"
-decklint --version
+decklint --version                 # expect 0.3.x
 ```
 
 ### B. Local folder
@@ -59,6 +59,9 @@ Directories are scanned recursively for `*.pptx`.
 | `reading` | Email / async review | Allows denser text |
 | `keynote` | Launch / keynote look | Fewer accents, stricter density |
 | `a11y` | Accessibility gate | WCAG contrast + image alt |
+| `corporate` | Brand / enterprise QA | Fonts ≤2, accents ≤2, margins, embed fonts, file Title |
+| `wcag-strict` | Strict accessibility | Unique titles + alt + no auto-advance as **errors** |
+| `async-doc` | Read-without-speaker handoff | Requires speaker notes on content slides |
 
 ---
 
@@ -67,7 +70,7 @@ Directories are scanned recursively for `*.pptx`.
 ### `decklint check`
 
 ```bash
-decklint check PATH... [--preset stage|reading|keynote|a11y]
+decklint check PATH... [--preset stage|reading|keynote|a11y|corporate|wcag-strict|async-doc]
                        [--lang en|zh]
                        [--format text|json|sarif|html]
                        [--out FILE]
@@ -91,40 +94,86 @@ Examples:
 decklint check deck.pptx --lang zh --format html --out report.html
 decklint check deck.pptx --format json --out report.json
 decklint check deck.pptx --format sarif --out decklint.sarif
+decklint check deck.pptx --preset corporate --fail-on warning
+decklint check deck.pptx --preset wcag-strict --lang zh
+decklint check deck.pptx --preset async-doc
 decklint check deck.pptx --fix
 decklint score deck.pptx --preset keynote --lang zh
 decklint rules --lang zh
 ```
 
 **Autofix does:** strip banned OOXML animations/transitions.  
-**Autofix does not:** change fonts, colors, titles, layout, charts, or alt text.
+**Autofix does not:** change fonts, colors, titles, layout, charts, alt text, notes, or margins.
 
 ---
 
-## 6. Workflows
+## 6. All rules (v0.3)
+
+| Rule id | Category | What it checks |
+|---|---|---|
+| `max-text` | typography | Characters per slide |
+| `no-slideument` | typography | Bullet walls / long bullets |
+| `min-font` | typography | Minimum explicit font size |
+| `font-families` | typography | Distinct typeface count |
+| `font-embed` | typography | Embedded fonts in OOXML (corporate) |
+| `bullet-depth` | typography | Nested bullet depth |
+| `accent-colors` | color | Non-gray accent count |
+| `text-contrast` | a11y | WCAG contrast (solid RGB) |
+| `image-alt` | a11y | Picture descr / alt |
+| `a11y-title` | a11y | Title placeholder on titled layouts |
+| `unique-titles` | a11y | Unique (and present) slide titles |
+| `vague-links` | a11y | Ban "click here" / "了解更多" |
+| `auto-advance` | a11y | Timed `advTm` transitions |
+| `deck-properties` | a11y | Core document Title |
+| `occupancy` | layout | Shape fill ratio |
+| `alignment-near-miss` | layout | Near-miss left edges |
+| `box-overlap` | layout | Opaque overlap |
+| `image-bleed` | layout | Too many pictures |
+| `safe-margins` | layout | ~5% outer safe area |
+| `max-shapes` | layout | Shape clutter cap |
+| `one-idea` | design | Multiple top text frames |
+| `title-as-claim` | design | Vague titles |
+| `title-length` | design | Title too short / too long |
+| `empty-slide` | design | Blank slides |
+| `speaker-notes` | design | Notes on content slides (async-doc) |
+| `canvas` | design | Prefer ~16:9 |
+| `chart-junk` | chart | 3D / callout reminder |
+| `notes-for-charts` | chart | Chart slides need notes |
+| `animation-policy` | animation | Ban decorative effects; cap transitions |
+
+Full encyclopedia: [`rules.md`](rules.md)
+
+---
+
+## 7. Workflows
 
 **Human:** export `.pptx` → `decklint check` → fix → re-run until exit 0.
 
 **Agent / CI:** generate → `decklint check --fail-on error` → non-zero means **not done**.
 
+### CI example (GitHub Actions)
+
+```yaml
+- run: pip install -e ".[dev]"
+- run: decklint check decks/ --preset corporate --fail-on warning --format sarif --out decklint.sarif
+```
+
 See [`.github/workflows/decklint.yml`](../.github/workflows/decklint.yml) and [`skills/decklint/SKILL.md`](../skills/decklint/SKILL.md).
 
 ---
 
-## 7. Reading results
+## 8. Reading results
 
 | Field | Meaning |
 |---|---|
 | `score` | 0–100 |
 | `Sev` | `error` / `warning` / `info` |
 | `Rule` | Rule id (`decklint rules`) |
-| `Slide` | 1-based index |
-
-Rule encyclopedia: [`rules.md`](rules.md)
+| `Slide` | 1-based index (empty = whole deck) |
 
 ---
 
-## 8. FAQ
+## 9. FAQ
 
 **`command not found`** — activate the venv and `pip install -e .`.
 
@@ -134,9 +183,11 @@ Rule encyclopedia: [`rules.md`](rules.md)
 
 **vs generators (ppt-master, Gamma…)** — they create; `decklint` verifies. Chain them.
 
+**Why so many info findings on a fresh deck?** — `deck-properties` / `font-embed` are soft by default; use `corporate` or `wcag-strict` when you want them enforced.
+
 ---
 
-## 9. Dev / tests
+## 10. Dev / tests
 
 ```bash
 pip install -e ".[dev]"
@@ -146,7 +197,7 @@ pytest -q
 
 ---
 
-## 10. Help
+## 11. Help
 
 ```bash
 decklint --help

@@ -1,0 +1,83 @@
+# WCAG-strict — merged when --preset wcag-strict (on top of accessibility.yaml)
+# Stronger severities: unique titles, alt, auto-advance, notes for charts.
+
+version: 3
+presets:
+  wcag-strict:
+    extends: [a11y]
+    overrides:
+      min_ratio: 4.5
+      min_font_pt: 18
+
+rules:
+  - id: unique-titles
+    severity: error
+    category: a11y
+    description: "Unique titles required (WCAG headings / labels)."
+    description_zh: "必须唯一标题（WCAG 标题/标签）。"
+    check: unique_titles
+    params: { require_title: true }
+
+  - id: image-alt
+    severity: error
+    category: a11y
+    description: "Alt text required for all pictures."
+    description_zh: "所有图片必须有替代文本。"
+    check: image_alt
+    params: {}
+
+  - id: auto-advance
+    severity: error
+    category: a11y
+    description: "Timed auto-advance is an error under wcag-strict."
+    description_zh: "wcag-strict 下定时自动进片视为错误。"
+    check: auto_advance
+    params: {}
+
+  - id: text-contrast
+    severity: error
+    category: a11y
+    description: "WCAG AA contrast enforced."
+    description_zh: "强制 WCAG AA 对比度。"
+    check: text_bg_contrast
+    params: { min_ratio: 4.5, min_ratio_large: 3.0, use_wcag_aa: true }
+
+  - id: a11y-title
+    severity: error
+    category: a11y
+    description: "Title placeholder required on titled layouts."
+    description_zh: "带标题版式必须填写标题占位。"
+    check: a11y_title
+    params: {}
+
+  - id: notes-for-charts
+    severity: warning
+    category: chart
+    description: "Charts need notes/summary for non-visual access."
+    description_zh: "图表需备注/摘要以便非视觉访问。"
+    check: notes_for_charts
+    params: { min_notes_chars: 40 }
+
+  - id: vague-links
+    severity: error
+    category: a11y
+    description: "Vague link labels are errors."
+    description_zh: "含糊链接文案视为错误。"
+    check: vague_links
+    params: {}
+
+  - id: min-font
+    severity: error
+    category: typography
+    description: "18pt floor under wcag-strict."
+    description_zh: "wcag-strict 字号底线 18pt。"
+    check: min_font_pt
+    params: { min: 18 }
+
+  - id: deck-properties
+    severity: warning
+    category: a11y
+    description: "Document title required."
+    description_zh: "需要文档标题。"
+    check: deck_properties
+    params: { require_title: true, require_language: false }
