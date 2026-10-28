@@ -2,7 +2,7 @@
 
 **ESLint for PowerPoint** · **PowerPoint 的 ESLint**
 
-Score any `.pptx` against public design rules (Duarte · Presentation Zen · Microsoft · 优设), get machine-readable violations (JSON / SARIF / HTML), and optionally auto-fix what is safe.
+Score any `.pptx` against public design rules (Duarte · Presentation Zen · Microsoft · WCAG slide checklists · 优设), get machine-readable violations (JSON / SARIF / HTML), and optionally auto-fix what is safe.
 
 > Generators are everywhere. **Verifiers are almost empty.** This repo fills that gap.  
 > 生成器到处都是。**校验器几乎空白。** 本仓库补上这块缺口。
@@ -11,7 +11,7 @@ Score any `.pptx` against public design rules (Duarte · Presentation Zen · Mic
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![CLI](https://img.shields.io/badge/cli-decklint-black)](#cli)
-[![version](https://img.shields.io/badge/version-0.2.1-green)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.3.0-green)](pyproject.toml)
 
 ## Why this exists
 
@@ -53,6 +53,9 @@ decklint check your.pptx --preset reading --lang zh --format html --out report.h
 | Email / async reading | `decklint check x.pptx --preset reading` |
 | Keynote-style | `decklint check x.pptx --preset keynote` |
 | Accessibility gate | `decklint check x.pptx --preset a11y` |
+| Corporate / brand QA | `decklint check x.pptx --preset corporate` |
+| Strict WCAG | `decklint check x.pptx --preset wcag-strict` |
+| Async handoff (needs notes) | `decklint check x.pptx --preset async-doc` |
 | List rules | `decklint rules --lang zh` |
 | Category scores | `decklint score x.pptx` |
 | HTML report | `... --format html --out report.html` |
@@ -64,7 +67,7 @@ decklint check your.pptx --preset reading --lang zh --format html --out report.h
 pip install -e ".[dev]"
 python scripts/make_fixtures.py
 decklint check path/to/deck.pptx --preset stage
-decklint check deck.pptx --preset reading --lang zh --format json
+decklint check deck.pptx --preset corporate --lang zh --format json
 decklint check deck.pptx --format sarif --out report.sarif
 decklint check deck.pptx --format html --out report.html
 decklint check deck.pptx --fix          # safe auto-fixes only → *.linted.pptx
@@ -82,19 +85,22 @@ Exit code `1` when violations meet `--fail-on` (default: `error`).
 | `reading` | Email / async review | denser text allowed |
 | `keynote` | Launch aesthetic | 1 accent, very sparse text |
 | `a11y` | Accessibility gate | WCAG contrast + required image alt |
+| `corporate` | Brand / enterprise QA | fonts ≤2, accents, margins, embed, Title |
+| `wcag-strict` | Strict a11y | unique titles / alt / auto-advance as errors |
+| `async-doc` | Read-without-speaker | speaker notes on content slides |
 
-Rules: [`rules/duarte-zen-microsoft.yaml`](rules/duarte-zen-microsoft.yaml) · [`rules/accessibility.yaml`](rules/accessibility.yaml)
+Rules: [`rules/duarte-zen-microsoft.yaml`](rules/duarte-zen-microsoft.yaml) · [`rules/accessibility.yaml`](rules/accessibility.yaml) · [`rules/corporate.yaml`](rules/corporate.yaml) · [`rules/wcag-strict.yaml`](rules/wcag-strict.yaml) · [`rules/async-doc.yaml`](rules/async-doc.yaml)
 
-## What we check (v0.2)
+## What we check (v0.3)
 
 | Category | Rules |
 |---|---|
-| typography | `max-text`, `no-slideument`, `min-font`, `font-families` |
-| color / a11y | `accent-colors`, `text-contrast` (WCAG), `image-alt`, `a11y-title` |
-| layout | `occupancy`, `alignment-near-miss`, `box-overlap`, `image-bleed` |
-| design | `one-idea`, `title-as-claim`, `canvas` (16:9) |
-| chart | `chart-junk` (3D + callout reminder) |
-| animation | `animation-policy` (OOXML timing / transitions) |
+| typography | `max-text`, `no-slideument`, `min-font`, `font-families`, `font-embed`, `bullet-depth` |
+| color / a11y | `accent-colors`, `text-contrast`, `image-alt`, `a11y-title`, `unique-titles`, `vague-links`, `auto-advance`, `deck-properties` |
+| layout | `occupancy`, `alignment-near-miss`, `box-overlap`, `image-bleed`, `safe-margins`, `max-shapes` |
+| design | `one-idea`, `title-as-claim`, `title-length`, `empty-slide`, `speaker-notes`, `canvas` |
+| chart | `chart-junk`, `notes-for-charts` |
+| animation | `animation-policy` |
 
 See [`docs/rules.md`](docs/rules.md) / [`docs/rules.zh-CN.md`](docs/rules.zh-CN.md).
 
@@ -102,7 +108,7 @@ See [`docs/rules.md`](docs/rules.md) / [`docs/rules.zh-CN.md`](docs/rules.zh-CN.
 
 **Does:** strip banned animation / transition nodes from OOXML when identifiable → writes `*.linted.pptx`.
 
-**Does not:** rewrite titles, fonts, colors, layout, charts, alt text, or aspect ratio. See `decklint.fix` module docstring.
+**Does not:** rewrite titles, fonts, colors, layout, charts, alt text, notes, margins, or aspect ratio.
 
 ## Agent skill
 
@@ -114,9 +120,10 @@ See [`.github/workflows/decklint.yml`](.github/workflows/decklint.yml) — insta
 
 ## Sources (public pages)
 
-- Duarte — [4 presentation design principles](https://www.duarte.com/blog/4-presentation-design-principles-to-live-by/)
+- Duarte — [presentation design principles](https://www.duarte.com/blog/4-presentation-design-principles-to-live-by/) / [grids](https://www.duarte.com/blog/7-ways-to-make-your-best-powerpoint-presentations/)
 - Garr Reynolds — [Design tips](https://www.garrreynolds.com/design-tips)
-- Microsoft Support — [Effective presentation tips](https://support.microsoft.com/en-us/powerpoint/tips-for-creating-and-delivering-an-effective-presentation)
+- Microsoft — [Make PowerPoint accessible](https://support.microsoft.com/en-us/accessibility/powerpoint/make-your-powerpoint-presentations-accessible-to-people-with-disabilities)
+- University / gov PPT a11y checklists (unique titles, alt, on-click advance, descriptive links)
 - 优设 / 少数派 — public workplace PPT craft articles
 
 We do **not** copy book chapters. Rules are measurable heuristics inspired by those public pages.
