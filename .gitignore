@@ -6,3 +6,8 @@ dist/
 build/
 *.linted.pptx
 .DS_Store
+fixtures/**/*.pptx
+.pytest_cache/
+htmlcov/
+*.sarif
+report.html

@@ -1,18 +1,24 @@
 [project]
 name = "decklint"
-version = "0.1.0"
-description = "ESLint for PowerPoint — lint native .pptx against Duarte / Presentation Zen / Microsoft design rules"
+version = "0.2.0"
+description = "ESLint for PowerPoint — lint native .pptx (EN/中文). Quality gate, not a generator. PowerPoint 质量门禁，不是生成器。"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "pptx-eslint contributors" }]
-keywords = ["pptx", "powerpoint", "lint", "presentation", "design", "duarte", "eslint"]
+keywords = [
+  "pptx", "powerpoint", "lint", "presentation", "design", "duarte", "eslint",
+  "accessibility", "wcag", "sarif", "decklint", "幻灯片", "演示文稿", "质量门禁",
+]
 dependencies = [
   "python-pptx>=1.0.0",
   "pyyaml>=6.0",
   "click>=8.1",
   "rich>=13.0",
 ]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
 
 [project.scripts]
 decklint = "decklint.cli:main"
@@ -23,3 +29,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
