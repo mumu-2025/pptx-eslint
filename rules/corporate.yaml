@@ -1,0 +1,68 @@
+# Corporate / brand deck QA — merged when --preset corporate
+# Measurable brand-checklist heuristics (fonts, margins, accents, file props).
+
+version: 3
+presets:
+  corporate:
+    extends: [reading]
+    overrides:
+      max_font_families: 2
+      max_accent_colors: 2
+      min_font_pt: 14
+
+rules:
+  - id: font-families
+    severity: error
+    category: typography
+    description: "Corporate decks: ≤2 typefaces."
+    description_zh: "企业稿：字体 ≤2 种。"
+    check: font_families
+    params: { max: 2 }
+
+  - id: accent-colors
+    severity: error
+    category: color
+    description: "Corporate decks: ≤2 accent colors."
+    description_zh: "企业稿：强调色 ≤2 种。"
+    check: max_accent_colors
+    params: { max: 2 }
+
+  - id: safe-margins
+    severity: warning
+    category: layout
+    description: "Respect brand safe area (~5% margins)."
+    description_zh: "遵守品牌安全区（约 5% 边距）。"
+    check: safe_margins
+    params: { margin_pct: 0.05, allow_full_bleed_images: true }
+
+  - id: deck-properties
+    severity: warning
+    category: a11y
+    description: "File Title required for corporate document control."
+    description_zh: "企业文档管控要求填写文件 Title。"
+    check: deck_properties
+    params: { require_title: true, require_language: false }
+
+  - id: font-embed
+    severity: warning
+    category: typography
+    description: "Embed fonts so brand typefaces survive handoff."
+    description_zh: "嵌入字体，确保品牌字体在交接后仍可用。"
+    check: font_embed
+    params: { require_embedded: true }
+
+  - id: unique-titles
+    severity: warning
+    category: a11y
+    description: "Unique titles help reviewers navigate long decks."
+    description_zh: "唯一标题便于审阅长稿。"
+    check: unique_titles
+    params: { require_title: true }
+
+  - id: max-shapes
+    severity: warning
+    category: layout
+    description: "Cap shapes for brand cleanliness."
+    description_zh: "限制形状数量以保持品牌整洁。"
+    check: max_shapes
+    params: { max: 20 }

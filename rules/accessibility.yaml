@@ -1,7 +1,7 @@
-# Accessibility extensions — merged when --preset a11y
+# Accessibility extensions — merged when --preset a11y or wcag-strict
 # WCAG-inspired gates for native .pptx (MIT heuristics, not a full a11y audit).
 
-version: 2
+version: 3
 presets:
   a11y:
     extends: [reading]
@@ -14,6 +14,7 @@ rules:
     severity: error
     category: a11y
     description: "Stricter WCAG AA contrast for body and large text."
+    description_zh: "正文与大字更严的 WCAG AA 对比度。"
     check: text_bg_contrast
     params: { min_ratio: 4.5, min_ratio_large: 3.0, use_wcag_aa: true }
 
@@ -21,6 +22,7 @@ rules:
     severity: error
     category: a11y
     description: "Pictures must have descr / alt text (a11y preset)."
+    description_zh: "图片必须有 descr / 替代文本（a11y 预设）。"
     check: image_alt
     params: {}
 
@@ -28,6 +30,7 @@ rules:
     severity: warning
     category: a11y
     description: "Titled layouts must expose a title placeholder."
+    description_zh: "带标题版式必须有标题占位内容。"
     check: a11y_title
     params: {}
 
@@ -35,5 +38,30 @@ rules:
     severity: error
     category: typography
     description: "Readable floor for accessible decks."
+    description_zh: "无障碍稿的可读字号底线。"
     check: min_font_pt
     params: { min: 16 }
+
+  - id: unique-titles
+    severity: warning
+    category: a11y
+    description: "Unique slide titles for outline navigation."
+    description_zh: "唯一幻灯片标题，便于大纲导航。"
+    check: unique_titles
+    params: { require_title: true }
+
+  - id: auto-advance
+    severity: warning
+    category: a11y
+    description: "Timed advances reduce user control."
+    description_zh: "定时进片削弱用户控制。"
+    check: auto_advance
+    params: {}
+
+  - id: vague-links
+    severity: warning
+    category: a11y
+    description: "Descriptive link text required."
+    description_zh: "需要描述性链接文案。"
+    check: vague_links
+    params: {}

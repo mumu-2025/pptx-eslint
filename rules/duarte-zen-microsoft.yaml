@@ -2,11 +2,12 @@
 # Sources (public pages, not book reprints):
 # - Duarte: https://www.duarte.com/blog/4-presentation-design-principles-to-live-by/
 # - Garr Reynolds design tips: https://www.garrreynolds.com/design-tips
-# - Microsoft Support effective presentation tips
+# - Microsoft Support effective presentation tips / accessibility
+# - CA / UNC / Illinois PowerPoint accessibility checklists (unique titles, notes, links)
 # - 优设 / 少数派 public articles (CN workplace)
 # License of THIS file: MIT. Tutorial sites remain their own copyright — we encode measurable heuristics only.
 
-version: 2
+version: 3
 presets:
   core: {}
   stage:      # live talk: glance media
@@ -30,12 +31,29 @@ presets:
     overrides:
       min_ratio: 4.5
       min_font_pt: 16
+  corporate:  # brand / enterprise deck QA (merges rules/corporate.yaml)
+    extends: [reading]
+    overrides:
+      max_font_families: 2
+      max_accent_colors: 2
+      min_font_pt: 14
+  wcag-strict:  # stricter a11y (merges accessibility + wcag-strict yaml)
+    extends: [a11y]
+    overrides:
+      min_ratio: 4.5
+      min_font_pt: 18
+  async-doc:  # handoff deck meant to be read without a speaker
+    extends: [reading]
+    overrides:
+      max_chars_per_slide: 280
+      min_font_pt: 14
 
 rules:
   - id: one-idea
     severity: error
     category: design
     description: "One primary message per slide (heuristic: ≤1 H1-sized text frame + limited body)."
+    description_zh: "一页一个主主张（启发式：顶部大标题框有限）。"
     check: max_title_boxes
     params: { max: 1 }
 
@@ -43,6 +61,7 @@ rules:
     severity: error
     category: typography
     description: "Keep text density low (Presentation Zen SNR / Microsoft keep-text-simple)."
+    description_zh: "保持低文字密度（Presentation Zen 信噪比 / 微软「文字从简」）。"
     check: max_chars_per_slide
     params: { max: 120 }
 
@@ -50,6 +69,7 @@ rules:
     severity: error
     category: typography
     description: "Slides are not documents; flag wall-of-bullets (Reynolds)."
+    description_zh: "幻灯片不是文档；标记子弹墙（Reynolds）。"
     check: bullet_wall
     params: { max_bullets: 6, max_words_per_bullet: 12 }
 
@@ -57,6 +77,7 @@ rules:
     severity: error
     category: typography
     description: "Design for the back of the room; Microsoft suggests ≥18pt as floor."
+    description_zh: "为后排设计；微软建议字号底线 ≥18pt。"
     check: min_font_pt
     params: { min: 18 }
 
@@ -64,6 +85,7 @@ rules:
     severity: warning
     category: typography
     description: "Limit distinct typefaces (≤3)."
+    description_zh: "限制字体种类（≤3）。"
     check: font_families
     params: { max: 3 }
 
@@ -71,6 +93,7 @@ rules:
     severity: warning
     category: color
     description: "Few colors, used with purpose (Duarte). Limit distinct non-gray accents."
+    description_zh: "少而有目的的颜色（Duarte）。限制非灰强调色。"
     check: max_accent_colors
     params: { max: 2 }
 
@@ -78,6 +101,7 @@ rules:
     severity: error
     category: a11y
     description: "High contrast between text and background (WCAG AA)."
+    description_zh: "文本与背景高对比度（WCAG AA）。"
     check: text_bg_contrast
     params: { min_ratio: 4.5, min_ratio_large: 3.0, use_wcag_aa: true }
 
@@ -85,6 +109,7 @@ rules:
     severity: warning
     category: chart
     description: "Avoid Excel-default chart junk (Duarte 'don't be default')."
+    description_zh: "避免 Excel 默认图表垃圾（Duarte「别用默认」）。"
     check: chart_junk
     params: { ban_3d: true, require_data_labels_or_callouts: true }
 
@@ -92,6 +117,7 @@ rules:
     severity: warning
     category: animation
     description: "Animation only for pacing, not decoration (Duarte / Reynolds)."
+    description_zh: "动画只为节奏，不为装饰（Duarte / Reynolds）。"
     check: animation_policy
     params:
       ban_effects: [bounce, spiral, growTurn, swish, whip, boomerang, pinwheel]
@@ -101,6 +127,7 @@ rules:
     severity: warning
     category: design
     description: "Prefer declarative titles over vague section labels."
+    description_zh: "标题宜用主张句，忌空泛章节名。"
     check: title_is_claim
     params:
       ban_phrases:
@@ -125,6 +152,7 @@ rules:
     severity: warning
     category: layout
     description: "Leave empty space; don't fill every corner (Reynolds)."
+    description_zh: "留白；不要填满每个角落（Reynolds）。"
     check: occupancy
     params: { max_fill_ratio: 0.72 }
 
@@ -132,6 +160,7 @@ rules:
     severity: warning
     category: layout
     description: "CRAP — Alignment; near-miss edges (2–8pt)."
+    description_zh: "CRAP 对齐；近乎对齐却差 2–8pt。"
     check: near_miss_alignment
     params: { min_delta_pt: 2, max_delta_pt: 8 }
 
@@ -139,6 +168,7 @@ rules:
     severity: warning
     category: layout
     description: "Opaque shapes should not accidentally overlap."
+    description_zh: "不透明形状不应意外重叠。"
     check: box_overlap
     params: { min_overlap_ratio: 0.15 }
 
@@ -146,6 +176,7 @@ rules:
     severity: warning
     category: design
     description: "Prefer ~16:9 widescreen canvas."
+    description_zh: "优先约 16:9 宽屏画布。"
     check: canvas_ratio
     params: {}
 
@@ -153,6 +184,7 @@ rules:
     severity: info
     category: layout
     description: "Prefer one large image over many tiny ones (Reynolds)."
+    description_zh: "宜一张大图，忌多张碎图（Reynolds）。"
     check: image_layout
     params: { max_images: 2, prefer_full_bleed_single: true }
 
@@ -160,6 +192,7 @@ rules:
     severity: warning
     category: a11y
     description: "Pictures should carry descr / alt text."
+    description_zh: "图片应有 descr / 替代文本。"
     check: image_alt
     params: {}
 
@@ -167,5 +200,103 @@ rules:
     severity: info
     category: a11y
     description: "Titled layouts should expose a title placeholder."
+    description_zh: "带标题版式应提供标题占位内容。"
     check: a11y_title
     params: {}
+
+  # --- v0.3 additions ---
+  - id: unique-titles
+    severity: warning
+    category: a11y
+    description: "Every slide should have a unique title (WCAG outline / screen readers)."
+    description_zh: "每页应有唯一标题（WCAG 大纲 / 朗读器）。"
+    check: unique_titles
+    params: { require_title: true }
+
+  - id: safe-margins
+    severity: warning
+    category: layout
+    description: "Keep content inside ~5% outer margins (Duarte grids)."
+    description_zh: "内容留在约 5% 外边距内（Duarte 网格）。"
+    check: safe_margins
+    params: { margin_pct: 0.05, allow_full_bleed_images: true }
+
+  - id: bullet-depth
+    severity: warning
+    category: typography
+    description: "Limit nested bullet depth (readability)."
+    description_zh: "限制项目符号嵌套深度（可读性）。"
+    check: bullet_depth
+    params: { max_level: 2 }
+
+  - id: vague-links
+    severity: warning
+    category: a11y
+    description: "Hyperlink text must describe destination/purpose."
+    description_zh: "超链接文案须描述去向/用途。"
+    check: vague_links
+    params: {}
+
+  - id: empty-slide
+    severity: info
+    category: design
+    description: "Flag slides with no meaningful content."
+    description_zh: "标记无实质内容的空白页。"
+    check: empty_slide
+    params: { min_chars: 1, allow_picture_only: true }
+
+  - id: max-shapes
+    severity: warning
+    category: layout
+    description: "Too many shapes usually means clutter."
+    description_zh: "形状过多通常意味着拥挤。"
+    check: max_shapes
+    params: { max: 25 }
+
+  - id: title-length
+    severity: info
+    category: design
+    description: "Titles should be scannable — not stubs, not paragraphs."
+    description_zh: "标题应可扫读 — 非占位也非长段。"
+    check: title_length
+    params: { min_chars: 4, max_chars: 90 }
+
+  - id: notes-for-charts
+    severity: info
+    category: chart
+    description: "Charts benefit from explanatory speaker notes (a11y)."
+    description_zh: "图表宜有说明性备注（无障碍）。"
+    check: notes_for_charts
+    params: { min_notes_chars: 30 }
+
+  - id: auto-advance
+    severity: warning
+    category: a11y
+    description: "Prefer on-click advance over timed auto-advance."
+    description_zh: "宜单击进片，忌定时自动进片。"
+    check: auto_advance
+    params: {}
+
+  - id: deck-properties
+    severity: info
+    category: a11y
+    description: "Set a core document Title for file QA / a11y."
+    description_zh: "设置核心文档 Title，便于文件质检 / 无障碍。"
+    check: deck_properties
+    params: { require_title: true, require_language: false }
+
+  - id: font-embed
+    severity: info
+    category: typography
+    description: "Embedded fonts improve brand fidelity across machines."
+    description_zh: "嵌入字体提升跨机器品牌一致性。"
+    check: font_embed
+    params: { require_embedded: false }
+
+  - id: speaker-notes
+    severity: info
+    category: design
+    description: "Async handoff decks should carry speaker notes on content slides."
+    description_zh: "异步交接稿的内容页应有演讲者备注。"
+    check: speaker_notes
+    params: { min_body_chars: 99999, min_notes_chars: 20, skip_first_slide: true }
