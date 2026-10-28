@@ -10,16 +10,27 @@ from . import (
     accent_colors,
     alignment,
     animation_policy,
+    auto_advance,
     box_overlap,
+    bullet_depth,
     canvas,
     chart_junk,
+    deck_properties,
+    empty_slide,
+    font_embed,
     font_families,
     image_alt,
+    max_shapes,
     max_text,
     min_font,
     occupancy,
+    safe_margins,
+    speaker_notes,
     text_contrast,
     title_as_claim,
+    title_length,
+    unique_titles,
+    vague_links,
 )
 
 CheckFn = Callable[[Slide, int, dict[str, Any], dict[str, Any]], list[Violation]]
@@ -43,6 +54,19 @@ CHECKERS: dict[str, CheckFn] = {
     "near_miss_alignment": alignment.check,
     "image_layout": max_text.check_image_layout,
     "max_title_boxes": max_text.check_title_boxes,
+    # v0.3
+    "unique_titles": unique_titles.check,
+    "safe_margins": safe_margins.check,
+    "bullet_depth": bullet_depth.check,
+    "speaker_notes": speaker_notes.check_speaker_notes,
+    "notes_for_charts": speaker_notes.check_notes_for_charts,
+    "vague_links": vague_links.check,
+    "deck_properties": deck_properties.check,
+    "auto_advance": auto_advance.check,
+    "empty_slide": empty_slide.check,
+    "max_shapes": max_shapes.check,
+    "font_embed": font_embed.check,
+    "title_length": title_length.check,
 }
 
 # Deck-level checkers (run once with presentation + path context)
@@ -51,6 +75,11 @@ DECK_CHECKERS: dict[str, Callable[..., list[Violation]]] = {
     "max_accent_colors": accent_colors.check_deck,
     "font_families": font_families.check_deck,
     "animation_policy": animation_policy.check_deck,
+    # v0.3
+    "unique_titles": unique_titles.check_deck,
+    "deck_properties": deck_properties.check_deck,
+    "auto_advance": auto_advance.check_deck,
+    "font_embed": font_embed.check_deck,
 }
 
 RULE_DOCS: list[dict[str, str]] = [
@@ -158,6 +187,91 @@ RULE_DOCS: list[dict[str, str]] = [
         "category": "layout",
         "en": "Left edges within 2–8pt but not equal.",
         "zh": "左边距相差 2–8pt 却未对齐。",
+    },
+    # v0.3
+    {
+        "id": "unique-titles",
+        "check": "unique_titles",
+        "category": "a11y",
+        "en": "Slide titles must be unique (and preferably present).",
+        "zh": "幻灯片标题须唯一（并尽量存在）。",
+    },
+    {
+        "id": "safe-margins",
+        "check": "safe_margins",
+        "category": "layout",
+        "en": "Keep content inside ~5% outer safe margins.",
+        "zh": "内容应留在约 5% 外边距安全区内。",
+    },
+    {
+        "id": "bullet-depth",
+        "check": "bullet_depth",
+        "category": "typography",
+        "en": "Limit nested bullet depth.",
+        "zh": "限制项目符号嵌套深度。",
+    },
+    {
+        "id": "speaker-notes",
+        "check": "speaker_notes",
+        "category": "design",
+        "en": "Content slides should carry speaker notes (async).",
+        "zh": "内容页应有演讲者备注（异步阅读）。",
+    },
+    {
+        "id": "notes-for-charts",
+        "check": "notes_for_charts",
+        "category": "chart",
+        "en": "Chart slides need explanatory notes.",
+        "zh": "含图表页需要说明性备注。",
+    },
+    {
+        "id": "vague-links",
+        "check": "vague_links",
+        "category": "a11y",
+        "en": "Ban vague hyperlink labels (click here / 了解更多).",
+        "zh": "禁止含糊超链接文案（click here / 了解更多）。",
+    },
+    {
+        "id": "deck-properties",
+        "check": "deck_properties",
+        "category": "a11y",
+        "en": "Require core document Title (and optionally language).",
+        "zh": "要求核心属性 Title（可选语言）。",
+    },
+    {
+        "id": "auto-advance",
+        "check": "auto_advance",
+        "category": "a11y",
+        "en": "Flag timed auto-advance transitions.",
+        "zh": "标记定时自动进片。",
+    },
+    {
+        "id": "empty-slide",
+        "check": "empty_slide",
+        "category": "design",
+        "en": "Flag slides with no text / picture / chart.",
+        "zh": "标记无文本/图片/图表的空白页。",
+    },
+    {
+        "id": "max-shapes",
+        "check": "max_shapes",
+        "category": "layout",
+        "en": "Too many shapes → visual clutter.",
+        "zh": "形状过多 → 视觉拥挤。",
+    },
+    {
+        "id": "font-embed",
+        "check": "font_embed",
+        "category": "typography",
+        "en": "Prefer embedded fonts for brand QA.",
+        "zh": "品牌质检建议嵌入字体。",
+    },
+    {
+        "id": "title-length",
+        "check": "title_length",
+        "category": "design",
+        "en": "Titles should be scannable (not stubs or paragraphs).",
+        "zh": "标题应可扫读（非占位也非长段落）。",
     },
 ]
 

@@ -143,3 +143,34 @@ def _local(tag: str) -> str:
     if "}" in tag:
         return tag.rsplit("}", 1)[-1]
     return tag
+
+
+def parse_auto_advances(pptx_path: Path) -> list[dict]:
+    """Return slides whose <p:transition> has advTm (timed advance) set."""
+    results: list[dict] = []
+    for part in list_slide_parts(pptx_path):
+        slide_num = int(re.search(r"slide(\d+)", part).group(1))  # type: ignore[union-attr]
+        xml = read_part(pptx_path, part)
+        try:
+            root = ET.fromstring(xml)
+        except ET.ParseError:
+            continue
+        for child in root:
+            if _local(child.tag) != "transition":
+                continue
+            adv = child.attrib.get("advTm")
+            # also look for namespaced advTm
+            if adv is None:
+                for k, v in child.attrib.items():
+                    if k.endswith("advTm") or k == "advTm":
+                        adv = v
+                        break
+            if adv is None:
+                continue
+            try:
+                adv_ms = int(float(adv))
+            except ValueError:
+                continue
+            if adv_ms > 0:
+                results.append({"slide": slide_num, "adv_ms": adv_ms, "part": part})
+    return results
