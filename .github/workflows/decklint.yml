@@ -1,0 +1,22 @@
+name: decklint
+on:
+  pull_request:
+  push:
+jobs:
+  lint-decks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -e .
+      - run: python scripts/make_fixtures.py
+      - name: Bad fixture must fail
+        run: |
+          if decklint check fixtures/bad --preset stage; then
+            echo "expected failure on bad fixture" >&2
+            exit 1
+          fi
+      - name: Good fixture must pass
+        run: decklint check fixtures/good --preset stage
