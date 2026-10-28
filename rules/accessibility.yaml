@@ -1,0 +1,39 @@
+# Accessibility extensions — merged when --preset a11y
+# WCAG-inspired gates for native .pptx (MIT heuristics, not a full a11y audit).
+
+version: 2
+presets:
+  a11y:
+    extends: [reading]
+    overrides:
+      min_ratio: 4.5
+      min_font_pt: 16
+
+rules:
+  - id: text-contrast
+    severity: error
+    category: a11y
+    description: "Stricter WCAG AA contrast for body and large text."
+    check: text_bg_contrast
+    params: { min_ratio: 4.5, min_ratio_large: 3.0, use_wcag_aa: true }
+
+  - id: image-alt
+    severity: error
+    category: a11y
+    description: "Pictures must have descr / alt text (a11y preset)."
+    check: image_alt
+    params: {}
+
+  - id: a11y-title
+    severity: warning
+    category: a11y
+    description: "Titled layouts must expose a title placeholder."
+    check: a11y_title
+    params: {}
+
+  - id: min-font
+    severity: error
+    category: typography
+    description: "Readable floor for accessible decks."
+    check: min_font_pt
+    params: { min: 16 }

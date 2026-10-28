@@ -6,8 +6,9 @@
 # - 优设 / 少数派 public articles (CN workplace)
 # License of THIS file: MIT. Tutorial sites remain their own copyright — we encode measurable heuristics only.
 
-version: 1
+version: 2
 presets:
+  core: {}
   stage:      # live talk: glance media
     extends: [core]
     overrides:
@@ -24,79 +25,147 @@ presets:
       max_accent_colors: 1
       max_chars_per_slide: 40
       prefer_dark_bg: true
+  a11y:       # accessibility-first (merges rules/accessibility.yaml)
+    extends: [reading]
+    overrides:
+      min_ratio: 4.5
+      min_font_pt: 16
 
 rules:
   - id: one-idea
     severity: error
+    category: design
     description: "One primary message per slide (heuristic: ≤1 H1-sized text frame + limited body)."
     check: max_title_boxes
     params: { max: 1 }
 
   - id: max-text
     severity: error
+    category: typography
     description: "Keep text density low (Presentation Zen SNR / Microsoft keep-text-simple)."
     check: max_chars_per_slide
-    params: { max: 120 }  # overridden by preset
-
-  - id: min-font
-    severity: error
-    description: "Design for the back of the room; Microsoft suggests ≥18pt as floor."
-    check: min_font_pt
-    params: { min: 18 }
-
-  - id: color-purpose
-    severity: warning
-    description: "Few colors, used with purpose (Duarte). Limit distinct non-gray accents."
-    check: max_accent_colors
-    params: { max: 2 }
-
-  - id: contrast
-    severity: error
-    description: "High contrast between text and background (Microsoft)."
-    check: text_bg_contrast
-    params: { min_ratio: 4.5 }
-
-  - id: no-default-chart
-    severity: warning
-    description: "Avoid Excel-default chart junk (Duarte 'don't be default')."
-    check: chart_junk
-    params: { ban_3d: true, max_grid_alpha: 0.3, require_data_labels_or_callouts: true }
-
-  - id: intentional-animation
-    severity: warning
-    description: "Animation only for pacing, not decoration (Duarte / Reynolds)."
-    check: animation_policy
-    params:
-      ban_effects: [bounce, spiral, growTurn, swish, whip]
-      max_distinct_transitions: 3
-      max_animated_shapes_ratio: 0.4
+    params: { max: 120 }
 
   - id: no-slideument
     severity: error
+    category: typography
     description: "Slides are not documents; flag wall-of-bullets (Reynolds)."
     check: bullet_wall
     params: { max_bullets: 6, max_words_per_bullet: 12 }
 
+  - id: min-font
+    severity: error
+    category: typography
+    description: "Design for the back of the room; Microsoft suggests ≥18pt as floor."
+    check: min_font_pt
+    params: { min: 18 }
+
+  - id: font-families
+    severity: warning
+    category: typography
+    description: "Limit distinct typefaces (≤3)."
+    check: font_families
+    params: { max: 3 }
+
+  - id: accent-colors
+    severity: warning
+    category: color
+    description: "Few colors, used with purpose (Duarte). Limit distinct non-gray accents."
+    check: max_accent_colors
+    params: { max: 2 }
+
+  - id: text-contrast
+    severity: error
+    category: a11y
+    description: "High contrast between text and background (WCAG AA)."
+    check: text_bg_contrast
+    params: { min_ratio: 4.5, min_ratio_large: 3.0, use_wcag_aa: true }
+
+  - id: chart-junk
+    severity: warning
+    category: chart
+    description: "Avoid Excel-default chart junk (Duarte 'don't be default')."
+    check: chart_junk
+    params: { ban_3d: true, require_data_labels_or_callouts: true }
+
+  - id: animation-policy
+    severity: warning
+    category: animation
+    description: "Animation only for pacing, not decoration (Duarte / Reynolds)."
+    check: animation_policy
+    params:
+      ban_effects: [bounce, spiral, growTurn, swish, whip, boomerang, pinwheel]
+      max_distinct_transitions: 3
+
   - id: title-as-claim
     severity: warning
-    description: "Prefer declarative titles over vague section labels (Zen chart tip)."
+    category: design
+    description: "Prefer declarative titles over vague section labels."
     check: title_is_claim
-    params: { ban_phrases: ["概况", "概述", "Overview", "Introduction", "目录", "谢谢", "Q&A"] }
+    params:
+      ban_phrases:
+        - Overview
+        - Introduction
+        - Agenda
+        - Summary
+        - Conclusion
+        - Contents
+        - Background
+        - "Q&A"
+        - 概况
+        - 概述
+        - 简介
+        - 目录
+        - 议程
+        - 总结
+        - 谢谢
+        - 背景
 
-  - id: whitespace
+  - id: occupancy
     severity: warning
+    category: layout
     description: "Leave empty space; don't fill every corner (Reynolds)."
     check: occupancy
     params: { max_fill_ratio: 0.72 }
 
-  - id: alignment
+  - id: alignment-near-miss
     severity: warning
-    description: "CRAP — Alignment; near-miss edges."
+    category: layout
+    description: "CRAP — Alignment; near-miss edges (2–8pt)."
     check: near_miss_alignment
-    params: { tolerance_pt: 4 }
+    params: { min_delta_pt: 2, max_delta_pt: 8 }
+
+  - id: box-overlap
+    severity: warning
+    category: layout
+    description: "Opaque shapes should not accidentally overlap."
+    check: box_overlap
+    params: { min_overlap_ratio: 0.15 }
+
+  - id: canvas
+    severity: warning
+    category: design
+    description: "Prefer ~16:9 widescreen canvas."
+    check: canvas_ratio
+    params: {}
 
   - id: image-bleed
     severity: info
+    category: layout
     description: "Prefer one large image over many tiny ones (Reynolds)."
     check: image_layout
     params: { max_images: 2, prefer_full_bleed_single: true }
+
+  - id: image-alt
+    severity: warning
+    category: a11y
+    description: "Pictures should carry descr / alt text."
+    check: image_alt
+    params: {}
+
+  - id: a11y-title
+    severity: info
+    category: a11y
+    description: "Titled layouts should expose a title placeholder."
+    check: a11y_title
+    params: {}
