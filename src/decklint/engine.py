@@ -14,6 +14,27 @@ from .rules import CHECKERS, DECK_CHECKERS
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RULES = ROOT / "rules" / "duarte-zen-microsoft.yaml"
 A11Y_RULES = ROOT / "rules" / "accessibility.yaml"
+CORPORATE_RULES = ROOT / "rules" / "corporate.yaml"
+WCAG_STRICT_RULES = ROOT / "rules" / "wcag-strict.yaml"
+ASYNC_DOC_RULES = ROOT / "rules" / "async-doc.yaml"
+
+PRESETS = (
+    "stage",
+    "reading",
+    "keynote",
+    "a11y",
+    "corporate",
+    "wcag-strict",
+    "async-doc",
+)
+
+# Extra YAML packs merged for specific presets (order matters).
+PRESET_EXTRA_FILES: dict[str, list[Path]] = {
+    "a11y": [A11Y_RULES],
+    "wcag-strict": [A11Y_RULES, WCAG_STRICT_RULES],
+    "corporate": [CORPORATE_RULES],
+    "async-doc": [ASYNC_DOC_RULES],
+}
 
 # Map preset override keys → check param keys
 OVERRIDE_MAP = {
@@ -30,10 +51,9 @@ def load_rules(path: Path | None, preset: str) -> dict[str, Any]:
     primary = path or DEFAULT_RULES
     data = yaml.safe_load(primary.read_text(encoding="utf-8")) or {}
 
-    # a11y preset merges accessibility.yaml
-    if preset == "a11y":
-        if A11Y_RULES.exists():
-            extra = yaml.safe_load(A11Y_RULES.read_text(encoding="utf-8")) or {}
+    for extra_path in PRESET_EXTRA_FILES.get(preset, []):
+        if extra_path.exists():
+            extra = yaml.safe_load(extra_path.read_text(encoding="utf-8")) or {}
             data = _merge_rule_docs(data, extra)
 
     params: dict[str, Any] = {}
@@ -43,6 +63,7 @@ def load_rules(path: Path | None, preset: str) -> dict[str, Any]:
         entry["_severity"] = rule.get("severity", "warning")
         entry["_id"] = rule.get("id", check)
         entry["_description"] = rule.get("description", "")
+        entry["_description_zh"] = rule.get("description_zh", "")
         entry["_category"] = rule.get("category", "design")
         params[check] = entry
 
@@ -105,6 +126,8 @@ def _merge_rule_docs(base: dict, extra: dict) -> dict:
             existing["params"] = merged_params
             if rule.get("description"):
                 existing["description"] = rule["description"]
+            if rule.get("description_zh"):
+                existing["description_zh"] = rule["description_zh"]
             out_rules[by_id[rid]] = existing
         else:
             out_rules.append(rule)

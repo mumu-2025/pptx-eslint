@@ -43,7 +43,7 @@ def main() -> None:
 @click.argument("paths", nargs=-1, type=click.Path(exists=True, path_type=Path))
 @click.option(
     "--preset",
-    type=click.Choice(["stage", "reading", "keynote", "a11y"]),
+    type=click.Choice(["stage", "reading", "keynote", "a11y", "corporate", "wcag-strict", "async-doc"]),
     default="stage",
     show_default=True,
     help="Rule preset / 规则预设",
@@ -169,7 +169,7 @@ def rules_cmd(lang: str) -> None:
 @click.argument("path", type=click.Path(exists=True, path_type=Path))
 @click.option(
     "--preset",
-    type=click.Choice(["stage", "reading", "keynote", "a11y"]),
+    type=click.Choice(["stage", "reading", "keynote", "a11y", "corporate", "wcag-strict", "async-doc"]),
     default="stage",
 )
 @click.option("--lang", type=click.Choice(["en", "zh"]), default="en")
