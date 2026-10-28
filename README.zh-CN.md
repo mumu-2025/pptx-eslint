@@ -9,7 +9,7 @@
 English → [`README.md`](README.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![version](https://img.shields.io/badge/version-0.2.0-green)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.2.1-green)](pyproject.toml)
 
 ## 为什么存在
 
@@ -27,6 +27,36 @@ GitHub 上已有大量 **AI PPT 生成器**。几乎没人给原生 `.pptx` 做�
 | 模板 / 主题 | **规则即代码** |
 | 「做得好看点」感觉论 | 可度量门禁（字号、WCAG 对比度、占版率…） |
 | 取代 Duarte/Zen 原著 | 仅引用公开页；只编码可测启发式 |
+
+
+## 怎么使用（完整教程）
+
+👉 **详细步骤、场景选型、CI / Agent 接法、FAQ：** [`docs/USAGE.zh-CN.md`](docs/USAGE.zh-CN.md)
+
+最短路径：
+
+```bash
+git clone https://github.com/mumu-2025/pptx-eslint.git
+cd pptx-eslint
+python -m venv .venv && source .venv/bin/activate   # Windows: .\.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
+python scripts/make_fixtures.py
+decklint check fixtures/bad/slideument.pptx --preset stage --lang zh
+decklint check 你的文件.pptx --preset reading --lang zh --format html --out 质检.html
+```
+
+| 你想… | 命令 |
+|---|---|
+| 上台讲的稿 | `decklint check x.pptx --preset stage --lang zh` |
+| 发邮件给人看 | `decklint check x.pptx --preset reading --lang zh` |
+| 发布会极简风 | `decklint check x.pptx --preset keynote --lang zh` |
+| 无障碍抽查 | `decklint check x.pptx --preset a11y --lang zh` |
+| 看有哪些规则 | `decklint rules --lang zh` |
+| 分类打分 | `decklint score x.pptx --lang zh` |
+| 导出 HTML 报告 | `... --format html --out report.html` |
+| 安全自动修复动画 | `... --fix`（生成 `*.linted.pptx`） |
+
+English usage → [`docs/USAGE.md`](docs/USAGE.md)
 
 ## 快速开始
 

@@ -11,7 +11,7 @@ Score any `.pptx` against public design rules (Duarte · Presentation Zen · Mic
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![CLI](https://img.shields.io/badge/cli-decklint-black)](#cli)
-[![version](https://img.shields.io/badge/version-0.2.0-green)](pyproject.toml)
+[![version](https://img.shields.io/badge/version-0.2.1-green)](pyproject.toml)
 
 ## Why this exists
 
@@ -29,6 +29,34 @@ If you (or your agent) generate slides, you still ship slideuments, tiny fonts, 
 | Templates / themes | **Rules as code** |
 | “Make it pretty” vibes | Measurable gates (font pt, WCAG contrast, occupancy…) |
 | Replace Duarte/Zen books | Cite public pages; encode heuristics only |
+
+
+## How to use (full guide)
+
+👉 **Step-by-step install, presets, CI / agents, FAQ:** [`docs/USAGE.md`](docs/USAGE.md) · 中文 [`docs/USAGE.zh-CN.md`](docs/USAGE.zh-CN.md)
+
+Shortest path:
+
+```bash
+git clone https://github.com/mumu-2025/pptx-eslint.git
+cd pptx-eslint
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+python scripts/make_fixtures.py
+decklint check fixtures/bad/slideument.pptx --preset stage
+decklint check your.pptx --preset reading --lang zh --format html --out report.html
+```
+
+| Goal | Command |
+|---|---|
+| Live talk deck | `decklint check x.pptx --preset stage` |
+| Email / async reading | `decklint check x.pptx --preset reading` |
+| Keynote-style | `decklint check x.pptx --preset keynote` |
+| Accessibility gate | `decklint check x.pptx --preset a11y` |
+| List rules | `decklint rules --lang zh` |
+| Category scores | `decklint score x.pptx` |
+| HTML report | `... --format html --out report.html` |
+| Safe animation strip | `... --fix` → `*.linted.pptx` |
 
 ## Quick start
 
