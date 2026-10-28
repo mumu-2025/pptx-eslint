@@ -1,0 +1,102 @@
+# Public-tutorial-derived rules for native .pptx quality gates.
+# Sources (public pages, not book reprints):
+# - Duarte: https://www.duarte.com/blog/4-presentation-design-principles-to-live-by/
+# - Garr Reynolds design tips: https://www.garrreynolds.com/design-tips
+# - Microsoft Support effective presentation tips
+# - 优设 / 少数派 public articles (CN workplace)
+# License of THIS file: MIT. Tutorial sites remain their own copyright — we encode measurable heuristics only.
+
+version: 1
+presets:
+  stage:      # live talk: glance media
+    extends: [core]
+    overrides:
+      max_chars_per_slide: 80
+      min_font_pt: 24
+  reading:    # async / email deck
+    extends: [core]
+    overrides:
+      max_chars_per_slide: 220
+      min_font_pt: 14
+  keynote:    # launch aesthetic
+    extends: [stage]
+    overrides:
+      max_accent_colors: 1
+      max_chars_per_slide: 40
+      prefer_dark_bg: true
+
+rules:
+  - id: one-idea
+    severity: error
+    description: "One primary message per slide (heuristic: ≤1 H1-sized text frame + limited body)."
+    check: max_title_boxes
+    params: { max: 1 }
+
+  - id: max-text
+    severity: error
+    description: "Keep text density low (Presentation Zen SNR / Microsoft keep-text-simple)."
+    check: max_chars_per_slide
+    params: { max: 120 }  # overridden by preset
+
+  - id: min-font
+    severity: error
+    description: "Design for the back of the room; Microsoft suggests ≥18pt as floor."
+    check: min_font_pt
+    params: { min: 18 }
+
+  - id: color-purpose
+    severity: warning
+    description: "Few colors, used with purpose (Duarte). Limit distinct non-gray accents."
+    check: max_accent_colors
+    params: { max: 2 }
+
+  - id: contrast
+    severity: error
+    description: "High contrast between text and background (Microsoft)."
+    check: text_bg_contrast
+    params: { min_ratio: 4.5 }
+
+  - id: no-default-chart
+    severity: warning
+    description: "Avoid Excel-default chart junk (Duarte 'don't be default')."
+    check: chart_junk
+    params: { ban_3d: true, max_grid_alpha: 0.3, require_data_labels_or_callouts: true }
+
+  - id: intentional-animation
+    severity: warning
+    description: "Animation only for pacing, not decoration (Duarte / Reynolds)."
+    check: animation_policy
+    params:
+      ban_effects: [bounce, spiral, growTurn, swish, whip]
+      max_distinct_transitions: 3
+      max_animated_shapes_ratio: 0.4
+
+  - id: no-slideument
+    severity: error
+    description: "Slides are not documents; flag wall-of-bullets (Reynolds)."
+    check: bullet_wall
+    params: { max_bullets: 6, max_words_per_bullet: 12 }
+
+  - id: title-as-claim
+    severity: warning
+    description: "Prefer declarative titles over vague section labels (Zen chart tip)."
+    check: title_is_claim
+    params: { ban_phrases: ["概况", "概述", "Overview", "Introduction", "目录", "谢谢", "Q&A"] }
+
+  - id: whitespace
+    severity: warning
+    description: "Leave empty space; don't fill every corner (Reynolds)."
+    check: occupancy
+    params: { max_fill_ratio: 0.72 }
+
+  - id: alignment
+    severity: warning
+    description: "CRAP — Alignment; near-miss edges."
+    check: near_miss_alignment
+    params: { tolerance_pt: 4 }
+
+  - id: image-bleed
+    severity: info
+    description: "Prefer one large image over many tiny ones (Reynolds)."
+    check: image_layout
+    params: { max_images: 2, prefer_full_bleed_single: true }
