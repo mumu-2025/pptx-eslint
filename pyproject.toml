@@ -1,0 +1,25 @@
+[project]
+name = "decklint"
+version = "0.1.0"
+description = "ESLint for PowerPoint — lint native .pptx against Duarte / Presentation Zen / Microsoft design rules"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "pptx-eslint contributors" }]
+keywords = ["pptx", "powerpoint", "lint", "presentation", "design", "duarte", "eslint"]
+dependencies = [
+  "python-pptx>=1.0.0",
+  "pyyaml>=6.0",
+  "click>=8.1",
+  "rich>=13.0",
+]
+
+[project.scripts]
+decklint = "decklint.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
