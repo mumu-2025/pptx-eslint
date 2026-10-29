@@ -2,15 +2,16 @@
 
 **ESLint for PowerPoint** · **PowerPoint 的 ESLint**
 
-Score any `.pptx` against public design rules (Duarte · Presentation Zen · Microsoft · WCAG slide checklists · 优设), get machine-readable violations (JSON / SARIF / HTML), and optionally auto-fix what is safe.
+Lint native `.pptx` against public design rules (Duarte · Presentation Zen · Microsoft · WCAG · 优设). Get machine-readable violations (JSON / SARIF / HTML) and optionally auto-fix what is safe.
 
 > Generators are everywhere. **Verifiers are almost empty.** This repo fills that gap.  
-> 生成器到处都是。**校验器几乎空白。** 本仓库补上这块缺口。
+> 生成器到处都是。**校验器几乎空白。** 本仓库补上这块缺口.
 
-中文完整说明 → [`README.zh-CN.md`](README.zh-CN.md)
+中文完整说明 → [`README.zh-CN.md`](README.zh-CN.md) · 用法教程 → [`docs/USAGE.md`](docs/USAGE.md) · [`docs/USAGE.zh-CN.md`](docs/USAGE.zh-CN.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![CLI](https://img.shields.io/badge/cli-decklint-black)](#cli)
+[![CLI](https://img.shields.io/badge/cli-decklint-black)](#30-second-usage)
+[![Python](https://img.shields.io/badge/python-≥3.10-blue)](pyproject.toml)
 [![version](https://img.shields.io/badge/version-0.3.0-green)](pyproject.toml)
 
 ## Why this exists
@@ -30,22 +31,19 @@ If you (or your agent) generate slides, you still ship slideuments, tiny fonts, 
 | “Make it pretty” vibes | Measurable gates (font pt, WCAG contrast, occupancy…) |
 | Replace Duarte/Zen books | Cite public pages; encode heuristics only |
 
-
-## How to use (full guide)
-
-👉 **Step-by-step install, presets, CI / agents, FAQ:** [`docs/USAGE.md`](docs/USAGE.md) · 中文 [`docs/USAGE.zh-CN.md`](docs/USAGE.zh-CN.md)
-
-Shortest path:
+## 30-second usage
 
 ```bash
 git clone https://github.com/mumu-2025/pptx-eslint.git
 cd pptx-eslint
-python -m venv .venv && source .venv/bin/activate
+python -m venv .venv && source .venv/bin/activate   # Windows: .\.venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
 python scripts/make_fixtures.py
 decklint check fixtures/bad/slideument.pptx --preset stage
 decklint check your.pptx --preset reading --lang zh --format html --out report.html
 ```
+
+Exit code `1` when violations meet `--fail-on` (default: `error`).
 
 | Goal | Command |
 |---|---|
@@ -58,24 +56,23 @@ decklint check your.pptx --preset reading --lang zh --format html --out report.h
 | Async handoff (needs notes) | `decklint check x.pptx --preset async-doc` |
 | List rules | `decklint rules --lang zh` |
 | Category scores | `decklint score x.pptx` |
-| HTML report | `... --format html --out report.html` |
+| HTML / JSON / SARIF | `... --format html\|json\|sarif --out report…` |
 | Safe animation strip | `... --fix` → `*.linted.pptx` |
 
-## Quick start
+👉 **Full guide** (install, presets, CI / agents, FAQ): [`docs/USAGE.md`](docs/USAGE.md) · 中文 [`docs/USAGE.zh-CN.md`](docs/USAGE.zh-CN.md)
 
-```bash
-pip install -e ".[dev]"
-python scripts/make_fixtures.py
-decklint check path/to/deck.pptx --preset stage
-decklint check deck.pptx --preset corporate --lang zh --format json
-decklint check deck.pptx --format sarif --out report.sarif
-decklint check deck.pptx --format html --out report.html
-decklint check deck.pptx --fix          # safe auto-fixes only → *.linted.pptx
-decklint rules --lang zh
-decklint score deck.pptx --preset keynote
-```
+## Features (v0.3)
 
-Exit code `1` when violations meet `--fail-on` (default: `error`).
+| Category | Rules |
+|---|---|
+| typography | `max-text`, `no-slideument`, `min-font`, `font-families`, `font-embed`, `bullet-depth` |
+| color / a11y | `accent-colors`, `text-contrast`, `image-alt`, `a11y-title`, `unique-titles`, `vague-links`, `auto-advance`, `deck-properties` |
+| layout | `occupancy`, `alignment-near-miss`, `box-overlap`, `image-bleed`, `safe-margins`, `max-shapes` |
+| design | `one-idea`, `title-as-claim`, `title-length`, `empty-slide`, `speaker-notes`, `canvas` |
+| chart | `chart-junk`, `notes-for-charts` |
+| animation | `animation-policy` |
+
+Rule details: [`docs/rules.md`](docs/rules.md) / [`docs/rules.zh-CN.md`](docs/rules.zh-CN.md)
 
 ## Presets
 
@@ -89,20 +86,7 @@ Exit code `1` when violations meet `--fail-on` (default: `error`).
 | `wcag-strict` | Strict a11y | unique titles / alt / auto-advance as errors |
 | `async-doc` | Read-without-speaker | speaker notes on content slides |
 
-Rules: [`rules/duarte-zen-microsoft.yaml`](rules/duarte-zen-microsoft.yaml) · [`rules/accessibility.yaml`](rules/accessibility.yaml) · [`rules/corporate.yaml`](rules/corporate.yaml) · [`rules/wcag-strict.yaml`](rules/wcag-strict.yaml) · [`rules/async-doc.yaml`](rules/async-doc.yaml)
-
-## What we check (v0.3)
-
-| Category | Rules |
-|---|---|
-| typography | `max-text`, `no-slideument`, `min-font`, `font-families`, `font-embed`, `bullet-depth` |
-| color / a11y | `accent-colors`, `text-contrast`, `image-alt`, `a11y-title`, `unique-titles`, `vague-links`, `auto-advance`, `deck-properties` |
-| layout | `occupancy`, `alignment-near-miss`, `box-overlap`, `image-bleed`, `safe-margins`, `max-shapes` |
-| design | `one-idea`, `title-as-claim`, `title-length`, `empty-slide`, `speaker-notes`, `canvas` |
-| chart | `chart-junk`, `notes-for-charts` |
-| animation | `animation-policy` |
-
-See [`docs/rules.md`](docs/rules.md) / [`docs/rules.zh-CN.md`](docs/rules.zh-CN.md).
+Rule packs: [`rules/duarte-zen-microsoft.yaml`](rules/duarte-zen-microsoft.yaml) · [`rules/accessibility.yaml`](rules/accessibility.yaml) · [`rules/corporate.yaml`](rules/corporate.yaml) · [`rules/wcag-strict.yaml`](rules/wcag-strict.yaml) · [`rules/async-doc.yaml`](rules/async-doc.yaml)
 
 ## `--fix` (safe only)
 
